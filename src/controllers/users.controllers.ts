@@ -1,33 +1,27 @@
-import { NextFunction, Request, Response } from 'express'
+import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import usersServices from '~/services/users.services'
 import { RegisterReqBody } from '~/models/requests/User.requests'
-import { threadId } from 'worker_threads'
+import { ObjectId } from 'mongodb'
+import User from '~/models/schemas/User.schema'
+import USERS_MESSAGES from '~/constants/messages'
 
-export const loginController = (req: Request, res: Response) => {
-  const { email, password } = req.body
-  if (email === 'buituananh@gmail.com' && password === '123456') {
-    return res.json({
-      message: 'Login success'
-    })
-  }
-  return res.status(400).json({
-    message: 'Login fail'
+export const loginController = async (req: Request, res: Response) => {
+  const user = req.user as User
+  const user_id = (user._id as ObjectId).toString()
+  // Fake throw Error to catch(error) and send error to Error handler
+  // throw new Error('Not Implemented')
+  const result = await usersServices.login(user_id)
+  return res.status(200).json({
+    message: USERS_MESSAGES.LOGIN_SUCCESSFULLY,
+    result
   })
 }
 
-export const registerController = async (
-  req: Request<ParamsDictionary, any, RegisterReqBody>,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const result = await usersServices.regiser(req.body)
-    return res.status(200).json({
-      message: 'Register successfully',
-      result
-    })
-  } catch (error) {
-    next(error)
-  }
+export const registerController = async (req: Request<ParamsDictionary, any, RegisterReqBody>, res: Response) => {
+  const result = await usersServices.regiser(req.body)
+  return res.status(200).json({
+    message: USERS_MESSAGES.REGISTER_SUCCESSFULLY,
+    result
+  })
 }

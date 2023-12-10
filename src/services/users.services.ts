@@ -4,6 +4,8 @@ import { RegisterReqBody } from '~/models/requests/User.requests'
 import { hashPassword } from '~/utils/crypto'
 import { signToken } from '~/utils/jwt'
 import { TokenType } from '~/constants/enums'
+import RefreshToken from '~/models/schemas/RefreshToken.schema'
+import { ObjectId } from 'mongodb'
 
 class UsersService {
   private signAccessToken(user_id: string) {
@@ -28,6 +30,14 @@ class UsersService {
       }
     })
   }
+  private signATAndRT(user_id: string) {
+    return Promise.all([this.signAccessToken(user_id), this.signRefreshToken(user_id)])
+  }
+
+  async checkEmailExist(email: string) {
+    const user = await databaseService.users.findOne({ email })
+    return Boolean(user)
+  }
 
   async regiser(payload: RegisterReqBody) {
     const result = await databaseService.users.insertOne(
@@ -38,19 +48,22 @@ class UsersService {
       })
     )
     const user_id: string = result.insertedId.toString()
-    const [access_token, refresh_token] = await Promise.all([
-      this.signAccessToken(user_id),
-      this.signRefreshToken(user_id)
-    ])
+    const [access_token, refresh_token] = await this.signATAndRT(user_id)
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({ token: refresh_token, user_id: new ObjectId(user_id) })
+    )
     return {
       access_token,
       refresh_token
     }
   }
 
-  async checkEmailExist(email: string) {
-    const user = await databaseService.users.findOne({ email })
-    return Boolean(user)
+  async login(user_id: string) {
+    const [access_token, refresh_token] = await this.signATAndRT(user_id)
+    return {
+      access_token,
+      refresh_token
+    }
   }
 }
 
