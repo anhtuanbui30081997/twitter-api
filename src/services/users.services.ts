@@ -91,8 +91,11 @@ class UsersService {
   }
 
   async refreshToken({ user_id, refresh_token }: { user_id: string; refresh_token: string }) {
-    await databaseService.refreshTokens.deleteOne({ token: refresh_token })
-    const [access_token, new_refresh_token] = await this.signATAndRT(user_id)
+    const [token] = await Promise.all([
+      this.signATAndRT(user_id),
+      databaseService.refreshTokens.deleteOne({ token: refresh_token })
+    ])
+    const [access_token, new_refresh_token] = token
     await databaseService.refreshTokens.insertOne(
       new RefreshToken({ token: new_refresh_token, user_id: new ObjectId(user_id) })
     )
@@ -119,6 +122,26 @@ class UsersService {
     return {
       access_token,
       refresh_token
+    }
+  }
+
+  async resendVerifyEmail(user_id: string) {
+    const email_verify_token = await this.signEmailVerifyToken(user_id)
+    // Fake send email
+    console.log('New email verify token:', email_verify_token)
+
+    // Update email_verify_token in User document
+    await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
+      {
+        $set: {
+          email_verify_token: email_verify_token,
+          updated_at: '$$NOW'
+        }
+      }
+    ])
+
+    return {
+      message: 'Resend verify email successfully'
     }
   }
 }
