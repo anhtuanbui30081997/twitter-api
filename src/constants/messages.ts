@@ -1,4 +1,5 @@
 const USERS_MESSAGES = {
+  LOGOUT_SUCCESSFULLY: 'Logout successffully',
   LOGIN_SUCCESSFULLY: 'Login successfully',
   REGISTER_SUCCESSFULLY: 'Register successfully',
   EMAIL_OR_PASSWORD_IS_INCORRECT: 'Email or Password is incorrect',
@@ -20,7 +21,13 @@ const USERS_MESSAGES = {
   CONFIRM_PASSWORD_MUST_BE_STRONG:
     'Confirm password must be at least 6 characters long and contain at least 1 lowercase letter, 1 uppercase letter, 1 number and 1 symbol',
   CONFIRM_PASSWORD_MUST_BE_THE_SAME_AS_PASSWORD: 'Confirm password must be the same as password',
-  DATE_OF_BIRTH_MUST_BE_ISO8601: 'Date of birth must be ISO8601'
+  DATE_OF_BIRTH_MUST_BE_ISO8601: 'Date of birth must be ISO8601',
+  ACCESS_TOKEN_IS_REQUIRED: 'Access token is required',
+  ACCESS_TOKEN_IS_INVALID: 'Access token is invalid',
+  REFRESH_TOKEN_IS_REQUIRED: 'Refresh token is required',
+  REFRESH_TOKEN_MUST_BE_A_STRING: 'Refresh token must be a string',
+  REFRESH_TOKEN_IS_INVALID: 'Refresh token is invalid',
+  USED_REFRESH_TOKEN_OR_NOT_EXISTS: 'Refresh token is used or not exists'
 } as const
 
 export default USERS_MESSAGES

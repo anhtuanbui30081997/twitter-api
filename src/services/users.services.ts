@@ -6,6 +6,7 @@ import { signToken } from '~/utils/jwt'
 import { TokenType } from '~/constants/enums'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import { ObjectId } from 'mongodb'
+import USERS_MESSAGES from '~/constants/messages'
 
 class UsersService {
   private signAccessToken(user_id: string) {
@@ -60,10 +61,17 @@ class UsersService {
 
   async login(user_id: string) {
     const [access_token, refresh_token] = await this.signATAndRT(user_id)
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({ token: refresh_token, user_id: new ObjectId(user_id) })
+    )
     return {
       access_token,
       refresh_token
     }
+  }
+
+  async logout(refresh_token: string) {
+    await databaseService.refreshTokens.deleteOne({ token: refresh_token })
   }
 }
 
