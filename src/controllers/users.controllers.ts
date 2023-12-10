@@ -1,10 +1,11 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import usersServices from '~/services/users.services'
-import { LogoutReqBody, RegisterReqBody } from '~/models/requests/User.requests'
+import { LogoutReqBody, RefreshTokenReqBody, RegisterReqBody, TokenPayload } from '~/models/requests/User.requests'
 import { ObjectId } from 'mongodb'
 import User from '~/models/schemas/User.schema'
 import USERS_MESSAGES from '~/constants/messages'
+import databaseService from '~/services/database.services'
 
 export const loginController = async (req: Request, res: Response) => {
   const user = req.user as User
@@ -30,5 +31,43 @@ export const logoutController = async (req: Request<ParamsDictionary, any, Logou
   await usersServices.logout(req.body.refresh_token)
   return res.status(200).json({
     message: USERS_MESSAGES.LOGOUT_SUCCESSFULLY
+  })
+}
+
+export const refreshTokenController = async (
+  req: Request<ParamsDictionary, any, RefreshTokenReqBody>,
+  res: Response
+) => {
+  const { user_id } = req.decoded_refresh_token as TokenPayload
+  const result = await usersServices.refreshToken({
+    user_id: user_id,
+    refresh_token: req.body.refresh_token
+  })
+  return res.status(200).json({
+    message: USERS_MESSAGES.REFRESH_TOKEN_SUCCESSFULLY,
+    result
+  })
+}
+
+export const emailVerifyValidator = async (req: Request<ParamsDictionary, any, RefreshTokenReqBody>, res: Response) => {
+  const { user_id } = req.decoded_email_verify_token as TokenPayload
+  const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
+  // If not found user, return a error
+  if (!user) {
+    return res.status(404).json({
+      message: USERS_MESSAGES.USER_NOT_FOUND
+    })
+  }
+  // If verified , return status OK with message "Email already verified before"
+  if (user.email_verify_token === '') {
+    return res.status(200).json({
+      message: USERS_MESSAGES.EMAIL_ALREADY_VERIFIED_BEFORE
+    })
+  }
+
+  const resutl = await usersServices.verifyEmail(user_id)
+  return res.status(200).json({
+    message: USERS_MESSAGES.EMAIL_VERIFY_SUCCESSFULLY,
+    resutl
   })
 }
