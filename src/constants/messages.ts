@@ -17,7 +17,7 @@ const USERS_MESSAGES = {
     'Password must be at least 6 characters long and contain at least 1 lowercase letter, 1 uppercase letter, 1 number and 1 symbol',
   CONFIRM_PASSWORD_IS_REQUIRED: 'Confirm password is required',
   CONFIRM_PASSWORD_MUST_BE_A_STRING: 'Confirm password must be a string',
-  CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50: 'Confirm password must be from 6 to 50',
+  CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50: 'Confirm password must be from 6 to 50 characters',
   CONFIRM_PASSWORD_MUST_BE_STRONG:
     'Confirm password must be at least 6 characters long and contain at least 1 lowercase letter, 1 uppercase letter, 1 number and 1 symbol',
   CONFIRM_PASSWORD_MUST_BE_THE_SAME_AS_PASSWORD: 'Confirm password must be the same as password',
@@ -38,7 +38,19 @@ const USERS_MESSAGES = {
   VERIFY_FORGOT_PASSWORD_TOKEN_SUCCESSFULLY: 'Verify forgot password token successfully',
   INVALID_FORGOT_PASSWORD_TOKEN: 'Invalid forgot password token',
   RESET_PASSWORD_SUCCESSFULLY: 'Reset password successfully',
-  GET_PROFILE_SUCCESSFULLY: 'Get profile successfully'
+  GET_PROFILE_SUCCESSFULLY: 'Get profile successfully',
+  UPDATE_PROFILE_SUCCESSFULLY: 'Update profile successfully',
+  USER_NOT_VERIFY: 'User not verify',
+  BIO_MUST_BE_A_STRING: 'Bio must be a string',
+  BIO_LENGTH: 'Bio must be from 1 to 200 characters',
+  LOCATION_MUST_BE_A_STRING: 'Location must be a string',
+  LOCATION_LENGTH: 'Location must be from 1 to 200 characters',
+  WEBSITE_MUST_BE_A_STRING: 'Website must be a string',
+  WEBSITE_LENGTH: 'Website must be from 1 to 200 characters',
+  USERNAME_MUST_BE_A_STRING: 'Username must be a string',
+  USERNAME_LENGTH: 'Username must be from 1 to 50 characters',
+  IMAGE_URL_MUST_BE_A_STRING: 'Avatar must be a string',
+  IMAGE_URL_LENGTH: 'Avatar must be from 1 to 400 characters'
 } as const
 
 export default USERS_MESSAGES

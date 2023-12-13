@@ -7,6 +7,7 @@ import {
   RefreshTokenReqBody,
   RegisterReqBody,
   TokenPayload,
+  UpdateMeReqBody,
   VerifyEmailReqBody,
   forgotPasswordReqBody,
   forgotPasswordTokenReqBody,
@@ -25,7 +26,7 @@ class UserController {
     const user_id = (user._id as ObjectId).toString()
     // Fake throw Error to catch(error) and send error to Error handler
     // throw new Error('Not Implemented')
-    const result = await usersServices.login(user_id)
+    const result = await usersServices.loginService({ user_id, verify: user.verify })
     return res.status(HTTP_STATUS.OK).json({
       message: USERS_MESSAGES.LOGIN_SUCCESSFULLY,
       result
@@ -33,7 +34,7 @@ class UserController {
   }
 
   async registerController(req: Request<ParamsDictionary, any, RegisterReqBody>, res: Response) {
-    const result = await usersServices.regiser(req.body)
+    const result = await usersServices.regiserService(req.body)
     return res.status(HTTP_STATUS.OK).json({
       message: USERS_MESSAGES.REGISTER_SUCCESSFULLY,
       result
@@ -41,7 +42,7 @@ class UserController {
   }
 
   async logoutController(req: Request<ParamsDictionary, any, LogoutReqBody>, res: Response) {
-    await usersServices.logout(req.body.refresh_token)
+    await usersServices.logoutService(req.body.refresh_token)
     return res.status(HTTP_STATUS.OK).json({
       message: USERS_MESSAGES.LOGOUT_SUCCESSFULLY
     })
@@ -49,7 +50,7 @@ class UserController {
 
   async refreshTokenController(req: Request<ParamsDictionary, any, RefreshTokenReqBody>, res: Response) {
     const { user_id } = req.decoded_refresh_token as TokenPayload
-    const result = await usersServices.refreshToken({
+    const result = await usersServices.refreshTokenService({
       user_id: user_id,
       refresh_token: req.body.refresh_token
     })
@@ -81,10 +82,10 @@ class UserController {
       })
     }
 
-    const resutl = await usersServices.verifyEmail(user_id)
+    const result = await usersServices.verifyEmailService(user_id)
     return res.status(HTTP_STATUS.OK).json({
       message: USERS_MESSAGES.EMAIL_VERIFY_SUCCESSFULLY,
-      resutl
+      result
     })
   }
 
@@ -103,27 +104,29 @@ class UserController {
         message: USERS_MESSAGES.EMAIL_ALREADY_VERIFIED_BEFORE
       })
     }
-    const result = await usersServices.resendVerifyEmail(user_id)
+    const result = await usersServices.resendVerifyEmailService(user_id)
     return res.status(HTTP_STATUS.OK).json(result)
   }
 
   async forgotPasswordController(req: Request<ParamsDictionary, any, forgotPasswordReqBody>, res: Response) {
-    const { _id } = req.user as User
-    const result = await usersServices.forgotPassword((_id as ObjectId).toString())
+    const user = req.user as User
+    const result = await usersServices.forgotPasswordService({
+      user_id: (user._id as ObjectId).toString(),
+      verify: user.verify
+    })
     return res.status(HTTP_STATUS.OK).json(result)
   }
 
   async verifyForgotPasswordController(req: Request<ParamsDictionary, any, forgotPasswordTokenReqBody>, res: Response) {
     const { user_id } = req.decoded_forgot_password_token as TokenPayload
-    const user = await databaseService.users.findOne({
-      _id: new ObjectId(user_id)
-    })
+    const forgot_password_token = req.body.forgot_password_token
+    const user = await usersServices.verifyForgotPasswordService(user_id)
     if (!user) {
       return res.status(HTTP_STATUS.NOT_FOUND).json({
         message: USERS_MESSAGES.USER_NOT_FOUND
       })
     }
-    if (user.forgot_password_token !== req.body.forgot_password_token) {
+    if (user.forgot_password_token !== forgot_password_token) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         message: USERS_MESSAGES.INVALID_FORGOT_PASSWORD_TOKEN
       })
@@ -144,7 +147,7 @@ class UserController {
         message: USERS_MESSAGES.USER_NOT_FOUND
       })
     }
-    const rerult = await usersServices.resetPassword({ user_id, password })
+    const rerult = await usersServices.resetPasswordService({ user_id, password })
     return res.status(HTTP_STATUS.OK).json(rerult)
   }
 
@@ -158,6 +161,22 @@ class UserController {
     }
     return res.status(HTTP_STATUS.OK).json({
       message: USERS_MESSAGES.GET_PROFILE_SUCCESSFULLY,
+      result: user
+    })
+  }
+
+  async updateMeController(req: Request<ParamsDictionary, any, UpdateMeReqBody>, res: Response) {
+    const { user_id } = req.decoded_authorization as TokenPayload
+    const body = req.body
+    console.log('body:', body)
+    const user = await usersServices.updateMeService(user_id, body)
+    if (user === null) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        message: USERS_MESSAGES.USER_NOT_FOUND
+      })
+    }
+    return res.status(HTTP_STATUS.OK).json({
+      message: USERS_MESSAGES.UPDATE_PROFILE_SUCCESSFULLY,
       result: user
     })
   }

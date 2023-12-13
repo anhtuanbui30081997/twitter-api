@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import userControllers from '~/controllers/users.controllers'
+import { filterMiddleware } from '~/middlewares/common.middlewares'
 import {
   accessTokenValidator,
   emailVerifyTokenValidator,
@@ -8,8 +9,11 @@ import {
   refreshTokenValidator,
   registerValidator,
   resetPasswordTokenValidator,
+  updateMeValidator,
+  verifiedUserValidator,
   verifyForgotPasswordTokenValidator
 } from '~/middlewares/users.middlewares'
+import { UpdateMeReqBody } from '~/models/requests/User.requests'
 import { wrapRequestHandler } from '~/utils/handlers'
 const usersRouter = Router()
 
@@ -125,5 +129,30 @@ usersRouter.post(
  * Body: None
  */
 usersRouter.get('/me', accessTokenValidator, wrapRequestHandler(userControllers.getMeController))
+
+/**
+ * Description. Update my profile
+ * Path: /me
+ * Method: PATCH
+ * Header: {Authorization: Bearer <access_token>}
+ * Body: UerSchema
+ */
+usersRouter.patch(
+  '/me',
+  accessTokenValidator,
+  verifiedUserValidator,
+  updateMeValidator,
+  filterMiddleware<UpdateMeReqBody>([
+    'avatar',
+    'date_of_birth',
+    'name',
+    'bio',
+    'location',
+    'username',
+    'cover_photo',
+    'website'
+  ]),
+  wrapRequestHandler(userControllers.updateMeController)
+)
 
 export default usersRouter
