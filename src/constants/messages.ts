@@ -38,7 +38,6 @@ const USERS_MESSAGES = {
   VERIFY_FORGOT_PASSWORD_TOKEN_SUCCESSFULLY: 'Verify forgot password token successfully',
   INVALID_FORGOT_PASSWORD_TOKEN: 'Invalid forgot password token',
   RESET_PASSWORD_SUCCESSFULLY: 'Reset password successfully',
-  GET_PROFILE_SUCCESSFULLY: 'Get profile successfully',
   UPDATE_PROFILE_SUCCESSFULLY: 'Update profile successfully',
   USER_NOT_VERIFY: 'User not verify',
   BIO_MUST_BE_A_STRING: 'Bio must be a string',
@@ -50,7 +49,11 @@ const USERS_MESSAGES = {
   USERNAME_MUST_BE_A_STRING: 'Username must be a string',
   USERNAME_LENGTH: 'Username must be from 1 to 50 characters',
   IMAGE_URL_MUST_BE_A_STRING: 'Avatar must be a string',
-  IMAGE_URL_LENGTH: 'Avatar must be from 1 to 400 characters'
+  IMAGE_URL_LENGTH: 'Avatar must be from 1 to 400 characters',
+  GET_PROFILE_SUCCESSFULLY: 'Get profile successfully',
+  FOLLOW_SUCCESSFULLY: 'Follow successfully',
+  FOLLOWED: 'User already followed before',
+  INVALID_FOLLOWER_USER_ID: 'Invalid follower user id'
 } as const
 
 export default USERS_MESSAGES

@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import usersServices from '~/services/users.services'
 import {
+  FollowReqBody,
   LoginReqBody,
   LogoutReqBody,
   RefreshTokenReqBody,
@@ -179,6 +180,22 @@ class UserController {
       message: USERS_MESSAGES.UPDATE_PROFILE_SUCCESSFULLY,
       result: user
     })
+  }
+
+  async getProfileController(req: Request<{ username: string }>, res: Response) {
+    const { username } = req.params
+    const user = await usersServices.getProfileService(username)
+    return res.status(HTTP_STATUS.OK).json({
+      message: USERS_MESSAGES.GET_PROFILE_SUCCESSFULLY,
+      result: user
+    })
+  }
+
+  async followController(req: Request<ParamsDictionary, any, FollowReqBody>, res: Response) {
+    const { user_id } = req.decoded_authorization as TokenPayload
+    const { followed_user_id } = req.body
+    const result = await usersServices.followService(user_id, followed_user_id)
+    return res.status(HTTP_STATUS.OK).json(result)
   }
 }
 

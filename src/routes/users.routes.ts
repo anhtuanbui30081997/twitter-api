@@ -10,6 +10,7 @@ import {
   registerValidator,
   resetPasswordTokenValidator,
   updateMeValidator,
+  verifiedFollowUserValidator,
   verifiedUserValidator,
   verifyForgotPasswordTokenValidator
 } from '~/middlewares/users.middlewares'
@@ -153,6 +154,30 @@ usersRouter.patch(
     'website'
   ]),
   wrapRequestHandler(userControllers.updateMeController)
+)
+
+/**
+ * Description. Get user profile
+ * Path: /username
+ * Method: GET
+ * Header: None
+ * Body: UerSchema
+ */
+usersRouter.get('/:username', wrapRequestHandler(userControllers.getProfileController))
+
+/**
+ * Description. Follow someone
+ * Path: /username
+ * Method: PATCH
+ * Header: {Authorization: Bearer <access_token>}
+ * Body: {followed_user_id: string}
+ */
+usersRouter.post(
+  '/follow',
+  accessTokenValidator,
+  verifiedUserValidator,
+  verifiedFollowUserValidator,
+  wrapRequestHandler(userControllers.followController)
 )
 
 export default usersRouter
