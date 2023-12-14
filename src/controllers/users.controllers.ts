@@ -2,12 +2,15 @@ import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import usersServices from '~/services/users.services'
 import {
+  ChangePasswordReqBody,
   FollowReqBody,
+  GetProfileReqParams,
   LoginReqBody,
   LogoutReqBody,
   RefreshTokenReqBody,
   RegisterReqBody,
   TokenPayload,
+  UnFollowReqParams,
   UpdateMeReqBody,
   VerifyEmailReqBody,
   forgotPasswordReqBody,
@@ -182,7 +185,7 @@ class UserController {
     })
   }
 
-  async getProfileController(req: Request<{ username: string }>, res: Response) {
+  async getProfileController(req: Request<GetProfileReqParams>, res: Response) {
     const { username } = req.params
     const user = await usersServices.getProfileService(username)
     return res.status(HTTP_STATUS.OK).json({
@@ -195,6 +198,20 @@ class UserController {
     const { user_id } = req.decoded_authorization as TokenPayload
     const { followed_user_id } = req.body
     const result = await usersServices.followService(user_id, followed_user_id)
+    return res.status(HTTP_STATUS.OK).json(result)
+  }
+
+  async unFollowController(req: Request<UnFollowReqParams>, res: Response) {
+    const { user_id } = req.decoded_authorization as TokenPayload
+    const { followed_user_id } = req.params
+    const result = await usersServices.unFollowService(user_id, followed_user_id)
+    return res.status(HTTP_STATUS.OK).json(result)
+  }
+
+  async changePasswordController(req: Request<ParamsDictionary, any, ChangePasswordReqBody>, res: Response) {
+    const { user_id } = req.decoded_authorization as TokenPayload
+    const { new_password } = req.body
+    const result = await usersServices.changePasswordService(user_id, new_password)
     return res.status(HTTP_STATUS.OK).json(result)
   }
 }

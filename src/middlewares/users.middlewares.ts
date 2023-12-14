@@ -14,6 +14,7 @@ import { LoginReqBody, TokenPayload } from '~/models/requests/User.requests'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ObjectId } from 'mongodb'
 import { UserVerifyStatus } from '~/constants/enums'
+import { REGEX_USERNAME } from '~/constants/regex'
 
 const passwordSchema: ParamSchema = {
   notEmpty: {
@@ -41,38 +42,41 @@ const passwordSchema: ParamSchema = {
   }
 }
 
-const confirmPasswordSchema: ParamSchema = {
-  notEmpty: {
-    errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED
-  },
-  isString: {
-    errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_A_STRING
-  },
-  isLength: {
-    options: {
-      min: 6,
-      max: 50
+const confirmPasswordSchema = (key: string) => {
+  const schema: ParamSchema = {
+    notEmpty: {
+      errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED
     },
-    errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
-  },
-  isStrongPassword: {
-    options: {
-      minLength: 6,
-      minLowercase: 1,
-      minNumbers: 1,
-      minUppercase: 1,
-      minSymbols: 1
+    isString: {
+      errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_A_STRING
     },
-    errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_STRONG
-  },
-  custom: {
-    options: (value, { req }) => {
-      if (value !== req.body.password) {
-        throw new Error(USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_THE_SAME_AS_PASSWORD)
+    isLength: {
+      options: {
+        min: 6,
+        max: 50
+      },
+      errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
+    },
+    isStrongPassword: {
+      options: {
+        minLength: 6,
+        minLowercase: 1,
+        minNumbers: 1,
+        minUppercase: 1,
+        minSymbols: 1
+      },
+      errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_STRONG
+    },
+    custom: {
+      options: (value, { req }) => {
+        if (value !== req.body[key]) {
+          throw new Error(USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_THE_SAME_AS_PASSWORD)
+        }
+        return true
       }
-      return true
     }
   }
+  return schema
 }
 
 const forgotPasswordTokenSchema: ParamSchema = {
@@ -147,6 +151,30 @@ const imageSchema: ParamSchema = {
   }
 }
 
+const userIdSchema: ParamSchema = {
+  // trim: true,
+  custom: {
+    options: async (value, { req }) => {
+      if (!ObjectId.isValid(value as string)) {
+        throw new ErrorWithStatus({
+          status: HTTP_STATUS.NOT_FOUND,
+          message: USERS_MESSAGES.INVALID_USER_ID
+        })
+      }
+      const follower_user = await databaseService.users.findOne({
+        _id: new ObjectId(value)
+      })
+      if (follower_user === null) {
+        throw new ErrorWithStatus({
+          status: HTTP_STATUS.NOT_FOUND,
+          message: USERS_MESSAGES.USER_NOT_FOUND
+        })
+      }
+      return true
+    }
+  }
+}
+
 export const loginValidator = validate(
   checkSchema(
     {
@@ -196,7 +224,7 @@ export const registerValidator = validate(
         }
       },
       password: passwordSchema,
-      confirm_password: confirmPasswordSchema,
+      confirm_password: confirmPasswordSchema('password'),
       date_of_birth: dateOfBirthSchema
     },
     ['body']
@@ -358,7 +386,7 @@ export const resetPasswordTokenValidator = validate(
   checkSchema(
     {
       password: passwordSchema,
-      confirm_password: confirmPasswordSchema,
+      confirm_password: confirmPasswordSchema('password'),
       forgot_password_token: forgotPasswordTokenSchema
     },
     ['body']
@@ -367,7 +395,6 @@ export const resetPasswordTokenValidator = validate(
 
 // Middleware đồng bộ thì throw express validator tự động next error
 export const verifiedUserValidator = async (req: Request, res: Response, next: NextFunction) => {
-  console.log('req.decoded_authorization', req.decoded_authorization)
   const { verify } = req.decoded_authorization as TokenPayload
   if (verify !== UserVerifyStatus.Verified) {
     // Neu dung Middleware bất đồng bộ phải dùng next
@@ -447,12 +474,17 @@ export const updateMeValidator = validate(
           errorMessage: USERS_MESSAGES.USERNAME_MUST_BE_A_STRING
         },
         trim: true,
-        isLength: {
-          options: {
-            min: 1,
-            max: 50
-          },
-          errorMessage: USERS_MESSAGES.USERNAME_LENGTH
+        custom: {
+          options: async (value: string, { req }) => {
+            if (REGEX_USERNAME.test(value) === false) {
+              throw new Error(USERS_MESSAGES.USERNAME_INVALID)
+            }
+            const user = await databaseService.users.findOne({ username: value })
+            if (user) {
+              throw new Error(USERS_MESSAGES.USERNAME_ALREADY_EXISTS)
+            }
+            return true
+          }
         }
       },
       avatar: imageSchema,
@@ -465,29 +497,48 @@ export const updateMeValidator = validate(
 export const verifiedFollowUserValidator = validate(
   checkSchema(
     {
-      followed_user_id: {
-        trim: true,
+      followed_user_id: userIdSchema
+    },
+    ['body']
+  )
+)
+
+export const verifiedUnFollowUserValidator = validate(
+  checkSchema(
+    {
+      followed_user_id: userIdSchema
+    },
+    ['params']
+  )
+)
+
+export const changePasswordValidator = validate(
+  checkSchema(
+    {
+      old_password: {
+        ...passwordSchema,
         custom: {
-          options: async (value, { req }) => {
-            if (!ObjectId.isValid(value as string)) {
-              throw new ErrorWithStatus({
-                status: HTTP_STATUS.NOT_FOUND,
-                message: USERS_MESSAGES.INVALID_FOLLOWER_USER_ID
-              })
-            }
-            const follower_user = await databaseService.users.findOne({
-              _id: new ObjectId(value)
-            })
-            if (follower_user === null) {
+          options: async (value: string, { req }) => {
+            const { user_id } = (req as Request).decoded_authorization as TokenPayload
+            const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
+            if (!user) {
               throw new ErrorWithStatus({
                 status: HTTP_STATUS.NOT_FOUND,
                 message: USERS_MESSAGES.USER_NOT_FOUND
               })
             }
+            if (user.password !== hashPassword(value)) {
+              throw new ErrorWithStatus({
+                status: HTTP_STATUS.UNAUTHORIZED,
+                message: USERS_MESSAGES.OLD_PASSWORD_IS_NOT_MATCH
+              })
+            }
             return true
           }
         }
-      }
+      },
+      new_password: passwordSchema,
+      confirm_new_password: confirmPasswordSchema('new_password')
     },
     ['body']
   )

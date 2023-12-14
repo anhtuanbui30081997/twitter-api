@@ -3,6 +3,7 @@ import userControllers from '~/controllers/users.controllers'
 import { filterMiddleware } from '~/middlewares/common.middlewares'
 import {
   accessTokenValidator,
+  changePasswordValidator,
   emailVerifyTokenValidator,
   forgotPasswordValidator,
   loginValidator,
@@ -11,6 +12,7 @@ import {
   resetPasswordTokenValidator,
   updateMeValidator,
   verifiedFollowUserValidator,
+  verifiedUnFollowUserValidator,
   verifiedUserValidator,
   verifyForgotPasswordTokenValidator
 } from '~/middlewares/users.middlewares'
@@ -167,7 +169,7 @@ usersRouter.get('/:username', wrapRequestHandler(userControllers.getProfileContr
 
 /**
  * Description. Follow someone
- * Path: /username
+ * Path: /follow
  * Method: PATCH
  * Header: {Authorization: Bearer <access_token>}
  * Body: {followed_user_id: string}
@@ -178,6 +180,36 @@ usersRouter.post(
   verifiedUserValidator,
   verifiedFollowUserValidator,
   wrapRequestHandler(userControllers.followController)
+)
+
+/**
+ * Description. Follow someone
+ * Path: /follow/:followed_user_id
+ * Method: DELETE
+ * Header: {Authorization: Bearer <access_token>}
+ * Body: None
+ */
+usersRouter.delete(
+  '/follow/:followed_user_id',
+  accessTokenValidator,
+  verifiedUserValidator,
+  verifiedUnFollowUserValidator,
+  wrapRequestHandler(userControllers.unFollowController)
+)
+
+/**
+ * Description. Change password
+ * Path: /change-password
+ * Method: PUT
+ * Header: {Authorization: Bearer <access_token>}
+ * Body: {old_password: string; new_password: string; confirm_new_password: string}
+ */
+usersRouter.put(
+  '/change-password',
+  accessTokenValidator,
+  verifiedUserValidator,
+  changePasswordValidator,
+  wrapRequestHandler(userControllers.changePasswordController)
 )
 
 export default usersRouter

@@ -47,13 +47,19 @@ const USERS_MESSAGES = {
   WEBSITE_MUST_BE_A_STRING: 'Website must be a string',
   WEBSITE_LENGTH: 'Website must be from 1 to 200 characters',
   USERNAME_MUST_BE_A_STRING: 'Username must be a string',
-  USERNAME_LENGTH: 'Username must be from 1 to 50 characters',
+  USERNAME_ALREADY_EXISTS: 'Username already exists',
+  USERNAME_INVALID:
+    'Username must be 4-15 characters long and contain only letters, number, and underscore, not only numbers',
   IMAGE_URL_MUST_BE_A_STRING: 'Avatar must be a string',
   IMAGE_URL_LENGTH: 'Avatar must be from 1 to 400 characters',
   GET_PROFILE_SUCCESSFULLY: 'Get profile successfully',
   FOLLOW_SUCCESSFULLY: 'Follow successfully',
   FOLLOWED: 'User already followed before',
-  INVALID_FOLLOWER_USER_ID: 'Invalid follower user id'
+  INVALID_USER_ID: 'Invalid user id',
+  ALREADY_UNFOLLOW: 'Already unfollow',
+  UNFOLLOW_SUCCESSFULLY: 'Unfollow successfully',
+  OLD_PASSWORD_IS_NOT_MATCH: 'Old password is not match',
+  CHANGE_PASSWORD_SUCCESSFULLY: 'Change password successfully'
 } as const
 
 export default USERS_MESSAGES

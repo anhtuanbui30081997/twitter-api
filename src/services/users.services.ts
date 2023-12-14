@@ -155,6 +155,14 @@ class UsersService {
       )
     ])
     const [access_token, refresh_token] = token
+    await databaseService.refreshTokens.updateOne(
+      { user_id: new ObjectId(user_id) },
+      {
+        $set: {
+          token: refresh_token
+        }
+      }
+    )
     return {
       access_token,
       refresh_token
@@ -294,7 +302,8 @@ class UsersService {
 
   async followService(user_id: string, followed_user_id: string) {
     const follower = await databaseService.followers.findOne({
-      user_id: new ObjectId(user_id)
+      user_id: new ObjectId(user_id),
+      followed_user_id: new ObjectId(followed_user_id)
     })
     if (follower === null) {
       await databaseService.followers.insertOne(
@@ -309,6 +318,46 @@ class UsersService {
     }
     return {
       message: USERS_MESSAGES.FOLLOWED
+    }
+  }
+
+  async unFollowService(user_id: string, followed_user_id: string) {
+    const follower = await databaseService.followers.findOne({
+      user_id: new ObjectId(user_id),
+      followed_user_id: new ObjectId(followed_user_id)
+    })
+    // user_id not follow follower_user_id
+    if (follower === null) {
+      return {
+        message: USERS_MESSAGES.ALREADY_UNFOLLOW
+      }
+    }
+    // Already follow => unfollow
+    await databaseService.followers.deleteOne({
+      user_id: new ObjectId(user_id),
+      followed_user_id: new ObjectId(followed_user_id)
+    })
+    return {
+      message: USERS_MESSAGES.UNFOLLOW_SUCCESSFULLY
+    }
+  }
+
+  async changePasswordService(user_id: string, new_password: string) {
+    await databaseService.users.updateOne(
+      {
+        _id: new ObjectId(user_id)
+      },
+      {
+        $set: {
+          password: hashPassword(new_password)
+        },
+        $currentDate: {
+          updated_at: true
+        }
+      }
+    )
+    return {
+      message: USERS_MESSAGES.CHANGE_PASSWORD_SUCCESSFULLY
     }
   }
 }
