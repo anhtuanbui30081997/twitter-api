@@ -212,4 +212,13 @@ usersRouter.put(
   wrapRequestHandler(userControllers.changePasswordController)
 )
 
+/**
+ * Description. OAuth with Google
+ * Path: /oauth/google
+ * Method: GET
+ * Header: {Authorization: Bearer <access_token>}
+ * Body: {old_password: string; new_password: string; confirm_new_password: string}
+ */
+usersRouter.get('/oauth/google', wrapRequestHandler(userControllers.oauthController))
+
 export default usersRouter

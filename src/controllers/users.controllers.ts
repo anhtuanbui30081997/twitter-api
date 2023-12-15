@@ -25,6 +25,14 @@ import { UserVerifyStatus } from '~/constants/enums'
 import HTTP_STATUS from '~/constants/httpStatus'
 
 class UserController {
+  async registerController(req: Request<ParamsDictionary, any, RegisterReqBody>, res: Response) {
+    const result = await usersServices.regiserService(req.body)
+    return res.status(HTTP_STATUS.OK).json({
+      message: USERS_MESSAGES.REGISTER_SUCCESSFULLY,
+      result
+    })
+  }
+
   async loginController(req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) {
     const user = req.user as User
     const user_id = (user._id as ObjectId).toString()
@@ -37,12 +45,20 @@ class UserController {
     })
   }
 
-  async registerController(req: Request<ParamsDictionary, any, RegisterReqBody>, res: Response) {
-    const result = await usersServices.regiserService(req.body)
-    return res.status(HTTP_STATUS.OK).json({
-      message: USERS_MESSAGES.REGISTER_SUCCESSFULLY,
-      result
-    })
+  async oauthController(req: Request, res: Response) {
+    const { code } = req.query
+    const result = await usersServices.oauthService(code as string)
+    const urlRedirect = `${process.env.CLIENT_REDIREACT_CALLBACK as string}?access_token=${
+      result.access_token
+    }&refresh_token=${result.refresh_token}&new_user=${result.newUser}&verify=${result.verify}`
+    return res.redirect(urlRedirect)
+    // return res.status(HTTP_STATUS.OK).json({
+    //   mesage: result.newUser ? USERS_MESSAGES.REGISTER_SUCCESSFULLY : USERS_MESSAGES.LOGIN_SUCCESSFULLY,
+    //   result: {
+    //     access_token: result.access_token,
+    //     refresh_token: result.refresh_token
+    //   }
+    // })
   }
 
   async logoutController(req: Request<ParamsDictionary, any, LogoutReqBody>, res: Response) {
