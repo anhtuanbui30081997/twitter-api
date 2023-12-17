@@ -60,7 +60,9 @@ const USERS_MESSAGES = {
   UNFOLLOW_SUCCESSFULLY: 'Unfollow successfully',
   OLD_PASSWORD_IS_NOT_MATCH: 'Old password is not match',
   CHANGE_PASSWORD_SUCCESSFULLY: 'Change password successfully',
-  GMAIL_NOT_VERIFIED: 'Gmail not verified'
+  GMAIL_NOT_VERIFIED: 'Gmail not verified',
+  UPLOAD_SUCCESSFULLY: 'Upload successfully',
+  GET_VIDEO_STATUS_SUCCESSFULLY: 'Get video status successfully'
 } as const
 
 export default USERS_MESSAGES

@@ -36,8 +36,6 @@ class UserController {
   async loginController(req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) {
     const user = req.user as User
     const user_id = (user._id as ObjectId).toString()
-    // Fake throw Error to catch(error) and send error to Error handler
-    // throw new Error('Not Implemented')
     const result = await usersServices.loginService({ user_id, verify: user.verify })
     return res.status(HTTP_STATUS.OK).json({
       message: USERS_MESSAGES.LOGIN_SUCCESSFULLY,
@@ -69,10 +67,12 @@ class UserController {
   }
 
   async refreshTokenController(req: Request<ParamsDictionary, any, RefreshTokenReqBody>, res: Response) {
-    const { user_id } = req.decoded_refresh_token as TokenPayload
+    const { user_id, exp, verify } = req.decoded_refresh_token as TokenPayload
     const result = await usersServices.refreshTokenService({
       user_id: user_id,
-      refresh_token: req.body.refresh_token
+      refresh_token: req.body.refresh_token,
+      verify,
+      exp
     })
     return res.status(HTTP_STATUS.OK).json({
       message: USERS_MESSAGES.REFRESH_TOKEN_SUCCESSFULLY,

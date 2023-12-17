@@ -10,3 +10,16 @@ export enum TokenType {
   ForgotPasswordToken,
   EmailVerifyToken
 }
+
+export enum Mediatype {
+  Image,
+  Video,
+  HLS
+}
+
+export enum EncodingStatus {
+  Pending, // Dang cho o queue
+  Processing, // Dang encode
+  Success, // Encode success
+  Failed // Encode failed
+}
