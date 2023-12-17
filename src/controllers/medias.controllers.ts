@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import path from 'path'
 import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from '~/constants/direction'
 import HTTP_STATUS from '~/constants/httpStatus'
-import USERS_MESSAGES from '~/constants/messages'
+import { USERS_MESSAGES } from '~/constants/messages'
 import mediasServices from '~/services/medias.services'
 import fs from 'fs'
 

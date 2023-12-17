@@ -4,6 +4,8 @@ import { config } from 'dotenv'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import Follower from '~/models/schemas/Follower.schema'
 import VideoStatus from '~/models/schemas/VideoStatus.schema'
+import Tweet from '~/models/schemas/Tweet.schema'
+import Hashtag from '~/models/schemas/Hashtag.schema'
 
 config()
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@twitter-dev.gpxotri.mongodb.net/?retryWrites=true&w=majority`
@@ -38,7 +40,6 @@ class DatabaseService {
 
   async indexUsers() {
     const exists = await this.users.indexExists(['email_1_password_1', 'email_1', 'username_1'])
-    console.log(exists)
     if (!exists) {
       this.users.createIndex({ email: 1, password: 1 })
       this.users.createIndex({ email: 1 }, { unique: true })
@@ -76,6 +77,12 @@ class DatabaseService {
   }
   get videoStatus() {
     return this.db.collection<VideoStatus>(process.env.DB_VIDEO_STATUS_COLLECTION as string)
+  }
+  get tweets() {
+    return this.db.collection<Tweet>(process.env.DB_TWEETS_COLLECTION as string)
+  }
+  get hashtags() {
+    return this.db.collection<Hashtag>(process.env.DB_HASHTAGS_COLLECTION as string)
   }
 }
 

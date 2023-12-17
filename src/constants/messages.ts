@@ -1,4 +1,4 @@
-const USERS_MESSAGES = {
+export const USERS_MESSAGES = {
   LOGOUT_SUCCESSFULLY: 'Logout successffully',
   LOGIN_SUCCESSFULLY: 'Login successfully',
   REGISTER_SUCCESSFULLY: 'Register successfully',
@@ -65,4 +65,15 @@ const USERS_MESSAGES = {
   GET_VIDEO_STATUS_SUCCESSFULLY: 'Get video status successfully'
 } as const
 
-export default USERS_MESSAGES
+export const TWEET_MESSAGE = {
+  INVALID_TYPE: 'Invalid type',
+  INVALID_AUDIENCE: 'Invalid audience',
+  PARENT_ID_MUST_BE_A_VALID_TWEET_ID: 'Parent id must be a valid tweet id',
+  PARENT_ID_MUST_BE_NULL: 'Parent id must be null',
+  CONTENT_MUST_BE_STRING: 'Content must be string',
+  CONTENT_MUST_BE_A_NON_EMPTY_STRING: 'Content must be a non empty string when user tweet or comment or quotetweet',
+  CONTENT_MUST_BE_A_EMPTY_STRING: 'Content must be a empty string when retweet',
+  HASHTAGS_MUST_BE_AN_ARRAY_OF_STRING: 'Hashtags must be an array of string',
+  MENTIONS_MUST_BE_AN_ARRAY_OF_USER_ID: 'Mentions must be an array of user id',
+  MEDIAS_MUST_BE_AN_ARRAY_OF_MEDIA_OBJECT: 'Medias must be an arrya of Media Object'
+} as const
