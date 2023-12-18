@@ -13,6 +13,12 @@ class TweetControllers {
       result: result
     })
   }
+  async getTweetController(req: Request, res: Response) {
+    return res.json({
+      message: 'Create Tweet successfully',
+      result: 'OK'
+    })
+  }
 }
 
 const tweetControllers = new TweetControllers()

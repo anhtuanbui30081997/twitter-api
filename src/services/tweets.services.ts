@@ -1,7 +1,7 @@
 import { TweetReqBody } from '~/models/requests/Tweet.request'
 import databaseService from './database.services'
 import Tweet from '~/models/schemas/Tweet.schema'
-import { ObjectId } from 'mongodb'
+import { ObjectId, WithId } from 'mongodb'
 import Hashtag from '~/models/schemas/Hashtag.schema'
 
 class TweetsService {
@@ -14,24 +14,25 @@ class TweetsService {
           {
             $setOnInsert: new Hashtag({ name: hashtag })
           },
+          /* Set the upsert option to insert a document if no documents
+          match the filter */
           {
-            upsert: true
+            upsert: true,
+            returnDocument: 'after'
           }
         )
-        // return databaseService.hashtags.findOne({ name: hashtag })
       })
     )
-    return hashtagDocuments
+    return hashtagDocuments.map((hashtag) => (hashtag as WithId<Hashtag>)._id)
   }
 
   async createTweetService(user_id: string, body: TweetReqBody) {
     const hashtags = await this.checkAndCreateHashtags(body.hashtags)
-    console.log(hashtags)
     const result = await databaseService.tweets.insertOne(
       new Tweet({
         audience: body.audience,
         content: body.content,
-        hashtags: [], // cho nay chua lam tam thoi de trong
+        hashtags, // cho nay chua lam tam thoi de trong
         mentions: body.mentions,
         parent_id: body.parent_id,
         type: body.type,
