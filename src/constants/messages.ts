@@ -65,7 +65,7 @@ export const USERS_MESSAGES = {
   GET_VIDEO_STATUS_SUCCESSFULLY: 'Get video status successfully'
 } as const
 
-export const TWEET_MESSAGE = {
+export const TWEET_MESSAGES = {
   INVALID_TYPE: 'Invalid type',
   INVALID_AUDIENCE: 'Invalid audience',
   PARENT_ID_MUST_BE_A_VALID_TWEET_ID: 'Parent id must be a valid tweet id',
@@ -77,10 +77,15 @@ export const TWEET_MESSAGE = {
   MENTIONS_MUST_BE_AN_ARRAY_OF_USER_ID: 'Mentions must be an array of user id',
   MEDIAS_MUST_BE_AN_ARRAY_OF_MEDIA_OBJECT: 'Medias must be an arrya of Media Object',
   INVALID_TWEET_ID: 'Invalid tweet id',
-  TWEET_NOT_FOUND: 'Tweet not found'
+  TWEET_NOT_FOUND: 'Tweet not found',
+  TWEET_IS_NOT_PUBLIC: 'Tweet is not public'
 } as const
 
 export const BOOKMARK_MESSAGES = {
   BOOKMARK_SUCCESSFULLY: 'Bookmark tweet successfully',
   UNBOOKMARK_SUCCESSFULLY: 'Unbookmark tweet successfully'
+}
+export const LIKE_MESSAGES = {
+  LIKE_SUCCESSFULLY: 'Like tweet successfully',
+  UNLIKE_SUCCESSFULLY: 'Unlike tweet successfully'
 }

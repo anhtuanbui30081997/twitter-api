@@ -6,7 +6,7 @@ import { getNameFromFullname, handleUploadImage, handleUploadVideo } from '~/uti
 import fs from 'fs'
 import fsPromise from 'fs/promises'
 import { isProduction } from '~/constants/config'
-import { EncodingStatus, Mediatype } from '~/constants/enums'
+import { EncodingStatus, MediaType } from '~/constants/enums'
 import { Media } from '~/models/Other'
 import { encodeHLSWithMultipleVideoStreams } from '~/utils/video'
 import { flatMap } from 'lodash'
@@ -113,7 +113,7 @@ class MediasService {
           url: isProduction
             ? `${process.env.HOST}/static/image/${newName}.jpg`
             : `http://localhost:${process.env.PORT}/static/image/${newName}.jpg`,
-          type: Mediatype.Image
+          type: MediaType.Image
         }
       })
     )
@@ -127,7 +127,7 @@ class MediasService {
       url: isProduction
         ? `${process.env.HOST}/static/video/${newFilename}`
         : `http://localhost:${process.env.PORT}/static/video/${newFilename}`,
-      type: Mediatype.Video
+      type: MediaType.Video
     }
   }
 
@@ -141,7 +141,7 @@ class MediasService {
           url: isProduction
             ? `${process.env.HOST}/static/video-hls/${newName}`
             : `http://localhost:${process.env.PORT}/static/video-hls/${newName}`,
-          type: Mediatype.HLS
+          type: MediaType.HLS
         }
       })
     )

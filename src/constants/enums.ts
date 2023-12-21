@@ -11,7 +11,7 @@ export enum TokenType {
   EmailVerifyToken
 }
 
-export enum Mediatype {
+export enum MediaType {
   Image,
   Video,
   HLS

@@ -9,6 +9,8 @@ import staticRouter from './routes/static.routes'
 import cors from 'cors'
 import tweetsRouter from './routes/tweets.routes'
 import bookmarksRoute from './routes/bookmarks.routes'
+import likesRoute from './routes/likes.routes'
+// import '~/utils/fake'
 
 databaseService.connect().then(() => {
   databaseService.indexUsers()
@@ -30,6 +32,7 @@ app.use('/static', staticRouter)
 app.use('/static/video', express.static(UPLOAD_VIDEO_DIR))
 app.use('/tweets', tweetsRouter)
 app.use('/bookmarks', bookmarksRoute)
+app.use('/likes', likesRoute)
 
 app.use(defaultErrorHandler)
 
